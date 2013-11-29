@@ -17,9 +17,11 @@ require_once($global['approot'].'/inc/lib_errors.inc');
 require_once($global['approot'].'/inc/handler_db.inc');
 require_once($global['approot'].'/inc/lib_xajax.inc');
 require_once($global['approot'].'/mod/em/xajax.inc');
+require_once($global['approot'].'/mod/em/add_category.inc');
 
 shn_xajax_registerFunction('em_append_log');
 shn_xajax_registerFunction('em_prepend_log');
+shn_xajax_registerFunction('em_add_category');
 shn_xajax_registerFunction('em_show_message');
 shn_xajax_registerFunction('em_show_events');
 shn_xajax_registerFunction('em_perform_edit');

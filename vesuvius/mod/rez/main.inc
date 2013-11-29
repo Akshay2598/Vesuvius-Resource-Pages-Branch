@@ -16,6 +16,7 @@ require_once($global['approot'].'/inc/lib_errors.inc');
 require_once($global['approot'].'/inc/handler_db.inc');
 require_once($global['approot'].'/mod/lpf/lib_lpf.inc');
 require_once($global['approot'].'/mod/rez/handler_locale.inc');
+require_once($global['approot'].'/mod/rez/render_fields.inc');
 
 
 function shn_rez_header2() {
@@ -109,9 +110,6 @@ function shn_rez_header2() {
 		}
 	}
 }
-
-
-
 
 
 /** Displays the Resources pages' content on the front end of the site. */

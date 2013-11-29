@@ -220,11 +220,14 @@ function Xajax() {
 						sXml += '&';
 					if(formElements[i].type=='select-multiple')
 					{
+						var selected_vals =new Array();
 						for (var j = 0; j < formElements[i].length; j++)
 						{
-							if (formElements[i].options[j].selected == true)   sXml += name+"="+encodeURIComponent(formElements[i].options[j].value)+"&";
+							if (formElements[i].options[j].selected == true)   selected_vals.push(formElements[i].options[j].value);
 						}
+						sXml += name+"="+(selected_vals)+"&";
 					}
+					
 					else
 					{
 						sXml += name+"="+encodeURIComponent(formElements[i].value);
@@ -234,7 +237,6 @@ function Xajax() {
 		}
 
 		sXml +="</q></xjxquery>";
-
 		return sXml;
 	}
 

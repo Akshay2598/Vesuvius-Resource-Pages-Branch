@@ -12,13 +12,14 @@
  */
 
 global $global;
-
+require_once($global['approot'].'/mod/em/add_category.inc');
 // create an array as it does not exist previosuly and will make warnings
 $global['xajax_functions'] = array();
 
 // publicly register accessible xajax funtions
 array_push($global['xajax_functions'],'em_append_log');
 array_push($global['xajax_functions'],'em_prepend_log');
+array_push($global['xajax_functions'],'em_add_category');
 array_push($global['xajax_functions'],'em_show_message');
 array_push($global['xajax_functions'],'em_show_events');
 array_push($global['xajax_functions'],'em_perform_edit');
@@ -35,6 +36,16 @@ function em_append_log($message = "no message specified?") {
 	$global['xajax_res']->addAppend('rezLog','innerHTML',$message);
 	//---- scroll the log to the bottom
 	$global['xajax_res']->addScript("setTimeout('e = document.getElementById(\'rezLog\'); e.scrollTop = e.scrollHeight+1000;', 500);");
+	return $global['xajax_res']->getXML();
+}
+
+// adds a new disaster category and generates disaster-select option
+function em_add_category($category,$incident_id) {
+
+	global $global;
+	$select =  add_category($category,$incident_id);
+	$global['xajax_res']->addAssign('chzn-select-no-results','innerHTML',$select);
+	$global['xajax_res']->addScript('$(".chzn-select-no-results").trigger(\'liszt:updated\');');
 	return $global['xajax_res']->getXML();
 }
 
@@ -104,7 +115,7 @@ function em_show_events($internal = FALSE) {
 	}
 	$total = $dcount;
 
-	$i = 1; // we start with the 2nd row of teh table (header?) :)
+	$i = 1; // we start with the 2nd row of the table (header?) :)
 	$eo = 0; // 2nd row is odd ~ of course u knew that computers start counting at 0 :P
 	while($i <= $dcount) {
 
@@ -129,18 +140,16 @@ function em_show_events($internal = FALSE) {
 			if($type_name === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "show disaster categories 2"); }
 			$name=$type_name->FetchRow();
 			$select.=$name['name'];
-			$select.=' ';
+			$select.=';';
 
 		}
-		//if no disaster category --> incident mapping exists, mark it as default.
-		if ($select === '')
-		{
+		//if no disaster category is associated with the incident , mark it as default category.
+		if ($select === '')		{
 			$disaster_category ='Default';
 		}
-		else
-		{
-		//Comma based separation
-			$select=explode(" ",$select,-1);
+		else		{
+			//Displaying categories with commas in b/w
+			$select=explode(";",$select,-1);
 			$select= join(",",$select);
 			$disaster_category =$select;
 		}
@@ -154,7 +163,7 @@ function em_show_events($internal = FALSE) {
 		$private_group = $row['private_group'];
 		$closed        = $row['closed'];
 
-		// get text for default event
+		// get text for default event    **This is different from default disaster category. Don't get confused :D
 		if($default == "1") {
 			$defaultText = "DEFAULT";
 		} else {
@@ -203,11 +212,10 @@ function em_show_events($internal = FALSE) {
 			";
 
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// list all incidents with this disaster as a parent
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		// get list of incidents
+
+		// ******list all incidents with this disaster as a parent ******//
+		// first get list of incidents
 		$q = "
 			SELECT *
 			FROM incident i
@@ -219,7 +227,7 @@ function em_show_events($internal = FALSE) {
 		$result = $global['db']->Execute($q);
 		if($result === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "show events 2"); }
 
-		// find out how many incidents we have
+		// next find out how many incidents we have
 		$incidents = array();
 		$icount = 0;
 		while($row = $result->FetchRow() ){
@@ -307,7 +315,7 @@ function em_show_events($internal = FALSE) {
 			}
 			else
 			{
-			//comma based separation
+				//comma based separation
 				$select=explode(" ",$select,-1);
 				$select= join(",",$select);
 				$disaster_category =$select;
@@ -328,11 +336,9 @@ function em_show_events($internal = FALSE) {
 				</tr>
 				";
 
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			// list all events with this incident as a parent
-			///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// *******list all events with this incident as a parent*********//
 
-			// get list of events
+			// first get list of events
 			$q = "
 				SELECT *
 				FROM incident i
@@ -344,7 +350,7 @@ function em_show_events($internal = FALSE) {
 			$result = $global['db']->Execute($q);
 			if($result === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "show events 3"); }
 
-			// find out how many events we have
+			// next find out how many events we have
 			$events = array();
 			$ecount = 0;
 			while($row = $result->FetchRow() ){
@@ -500,9 +506,7 @@ function em_show_events($internal = FALSE) {
 
 // shows help
 function em_perform_help() {
-
 	global $global;
-
 	// help content
 	$pageMainHtml = "
 		<h2>Adding a New Event</h2>
@@ -713,7 +717,7 @@ function em_perform_save($page_id, $rj) {
 		$shortName = "event".date("mdGis");
 	}
 	if($suggest) {
-		$log .= "<span style=\"color: red;\"><b>You may wish to <a onclick=\"javascript: em_append_log('Editting Event #<b>".$eventId."</b> ...<br>'); em_perform_edit(".$eventId.");\">edit</a> this event again to make corrections to the new Short Name: </span>".$shortName."</b><br>";
+		$log .= "<span style=\"color: red;\"><b>You may wish to <a onclick=\"javascript: em_append_log('Editting Event #<b>".$eventId."</b> ...<br>'); em_perform_edit(".$eventId.");\">edit</a> this event again to make changes";
 	}
 
 
@@ -1362,48 +1366,10 @@ function em_perform_edit($incident_id) {
 		";
 	// end PFIF options
 
-	//generate Disaster Category Select Box
-	$names=array();
-	$q= " 
-		SELECT *
-		FROM scenario 
-		WHERE `incident_id` = ".$incident_id.";
-	";
-	$categories = $global['db']->Execute($q);
-	if($categories === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "generate categry 1"); }
-	while($type_id = $categories->FetchRow()){
-		//get the name of the disaster category from ids
-		$q="
-			SELECT *
-			FROM disaster_category
-			WHERE `category_id` =".$type_id['disaster_type'].";
-		";
-		$type_name = $global['db']->Execute($q);
-		if($type_name === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "generate category 2"); }
-		$name=$type_name->FetchRow();
-		$names[]=$name['name'];
-	}
-	$q="
-		SELECT *
-		FROM disaster_category
-		ORDER BY name;
-	";
-	$categories=$global['db']->Execute($q);
-	$cats='';
-	$cats.="<select data-placeholder=\"Select from Existing Categories\" class=\"chzn-select-no-results\" name=\"rez_select\" multiple  id= \"chzn-select-no-results\" style=\"width: 300px\";";
-	if($categories === false) { daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "generate categry 3"); }
-	while($name=$categories->FetchRow())
-	{
-		if(in_array($name['name'],$names))
-		{
-			$cats.='<option selected value="'.$name['category_id'].' ">' . $name['name'] . '</option>';
-		}
-		else
-		{
-			$cats.='<option value="'.$name['category_id'].'">' . $name['name'] . '</option>';
-		}
-	}
-	$cats.='</select>';
+
+	//generate disaster category select box
+	$cats=add_category('main_list',$incident_id);
+
 
 
 	// generate visibility select box
@@ -1483,7 +1449,7 @@ function em_perform_edit($incident_id) {
 		<tr>
 		<tr>
 		<td class=\"mainRowEven emFirst emLast\" style=\"\">Disaster Category</td>
-		<td class=\"mainRowEven emFirst emLast\" style=\"\" colspan=3>".$cats." &nbsp; -OR- &nbsp; <input id=\"new_cat\" type=\"text\" placeholder=\"Add a new category first\"/><input type=\"button\" style=\"position: relative; top: -2px;\" class=\"styleTehButton\" onclick=\"add_category(".$incident_id.");\" value=\"Submit\" /></td>
+		<td class=\"mainRowEven emFirst emLast\" style=\"\" colspan=3>".$cats." &nbsp; -OR- &nbsp; <input id=\"new_cat\" type=\"text\" placeholder=\"Add a new category first\"/><input type=\"button\" style=\"position: relative; top: -2px;\" class=\"styleTehButton\" onclick=\"em_add_category(document.getElementById('new_cat').value,".$incident_id.");\" value=\"Submit\" /></td>
 		<tr>
 		<tr>
 		<td class=\"mainRowOdd emLastWhite\" style=\"\">Visibilty</td>

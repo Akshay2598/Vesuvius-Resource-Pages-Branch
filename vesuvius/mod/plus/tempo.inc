@@ -66,6 +66,7 @@ function shn_plus_plus() {
 		<br>
 		<br>
 		<li><a href="http://goo.gl/z5VnJ" target="_blank">PLUS API Specification</a></li>
+		<li><a href="https://groups.google.com/forum/#!forum/plus-web-services" target="_blank">PLUS Mailing List</a></li>
 	';
 }
 

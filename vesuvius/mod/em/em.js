@@ -168,7 +168,7 @@ function em_get_data() {
 		r.eventDefault = 0;
 	}
 	var rj = array2json(r);
-	alert(rj);
+//	alert(rj);
 	return(rj);
 }
 
@@ -222,48 +222,6 @@ function initDate() {
 function chosen() {
 	$(".chzn-select-no-results").chosen({no_results_text: "No matching categories for : "});
 }
-function getXMLHTTP() {
-	var x = false;
-	try {
-		x = new XMLHttpRequest();
-	}catch(e) {
-		try {
-			x = new ActiveXObject("Microsoft.XMLHTTP");
-		}catch(ex) {
-			try {
-				req = new ActiveXObject("Msxml2.XMLHTTP");
-			}
-			catch(e1) {
-				x = false;
-			}
-		}
-	}
-	return x;
-}
-
-function add_category(id){
-		var val= document.getElementById("new_cat").value;
-		alert(val);
-		alert(id);
-		var strURL="../../mod/em/add_cat.php?category="+val+"&inc_id="+id;
-		var req = getXMLHTTP();
-		if (req){
-			req.onreadystatechange = function(){
-				if (req.readyState == 4){
-					// only if "OK"
-					if (req.status == 200){
-						document.getElementById('chzn-select-no-results').innerHTML=req.responseText;
-						document.getElementById('new_cat').value='';
-						$(".chzn-select-no-results").trigger('liszt:updated');
-					} else {
-						alert("There was a problem while using XMLHTTP:\n" + req.statusText);
-					}
-				}
-			}
-			req.open("GET", strURL, true);
-			req.send(null);
-		}
-	}
 
 // from http://goo.gl/CLJxF
 function htmlspecialchars(string, quote_style, charset, double_encode) {
