@@ -22,6 +22,7 @@ array_push($global['xajax_functions'],'rez_append_log');
 array_push($global['xajax_functions'],'rez_prepend_log');
 array_push($global['xajax_functions'],'rez_show_message');
 array_push($global['xajax_functions'],'rez_show_pages');
+array_push($global['xajax_functions'],'rez_show_pages2');
 array_push($global['xajax_functions'],'rez_show_help');
 array_push($global['xajax_functions'],'rez_perform_edit');
 array_push($global['xajax_functions'],'rez_perform_delete');
@@ -68,166 +69,170 @@ function rez_show_message($message = "no message specified?") {
 
 
 // reloads the mainArea div with information of what pages we have
-function rez_show_pages($internal = FALSE) {
+function rez_show_pages($internal = FALSE, $system) {
 	global $conf;
 	global $global;
 	$htmlLog = "";
 	$htmlMain = "";
+	$type = $system?'system':'resource';
+	if ($type != 'system') {
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// NORMAL PAGES
+		//
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	// NORMAL PAGES
-	//
-	$htmlMain .= "<table class=\"mainTable\"><tr><td style=\"padding-left: 8px; width: 50px; text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Page #")."</b></td>"
-		."<td style=\"padding-left: 8px;\" ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"._t("ResourcePages-Table-Header|Menu/Page Title")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Visibility")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Locale")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Edit")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Delete")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Translate")."</b></td>"
-		."<td style=\"text-align: center;\"><b>"._t("ResourcePages-Table-Header|Move")."</b></td></tr>";
+		$htmlMain .= "<table class=\"mainTable\"><tr><td style=\"padding-left: 8px; width: 50px; text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Page #")."</b></td>"
+			."<td style=\"padding-left: 8px;\" ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"._t("ResourcePages-Table-Header|Menu/Page Title")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Visibility")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Locale")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Edit")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Delete")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Translate")."</b></td>"
+			."<td style=\"text-align: center;\"><b>"._t("ResourcePages-Table-Header|Move")."</b></td></tr>";
 
-	$currentlocale = shn_rez_getlocale();
-	$q = "
-		select rez_page_id, rez_locale, rez_menu_title, rez_menu_order, rez_visibility, rez_timestamp
-		from rez_pages
-		where rez_page_id > -1
-		order by rez_menu_order asc;
-	";
-	$result = $global['db']->Execute($q);
-	if($result === false) {
-		daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "rez show pages");
-	}
-
-	$pages = array();
-	$count = 0;
-
-	// find out how many pages we have so we can later build our pages table
-	while($row = $result->FetchRow() ){
-		$pages[$count] = $row;
-		$count++;
-	}
-	$rez_locales = $global['rez_locales'];
-	// build pages Table
-	$i = 1;
-	$eo = 0;
-	while($i <= $count) {
-		$row = $pages[$i-1];
-		$page_id    = $row['rez_page_id'];
-		$page_locale= $row['rez_locale'];
-		$menu_title = $row['rez_menu_title'];
-		$menu_order = $row['rez_menu_order'];
-		$visibility = $row['rez_visibility'];
-		$timestamp  = $row['rez_timestamp'];
-		if ( $eo == 0 ) {
-			$evenOddClass = "mainRowEven";
-		} else {
-			$evenOddClass = "mainRowOdd";
+		$currentlocale = shn_rez_getlocale();
+		$q = "
+			select rez_page_id, rez_locale, rez_menu_title, rez_menu_order, rez_visibility, rez_timestamp
+			from rez_pages
+			where rez_page_id > -1
+			order by rez_menu_order asc;
+		";
+		$result = $global['db']->Execute($q);
+		if($result === false) {
+			daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "rez show pages");
 		}
-		$int = ($visibility == 'INTERNAL') ? "<b>INTERNAL</b> " : "";
-		$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$page_id."</td>"
-			."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit(".$page_id.",'".$page_locale."');\">".$int.$menu_title."</a></td>"
-			."<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><b><select name=\"visibility\" onchange=\"javascript: rez_perform_change_visibility(".$page_id.", this.value);\"><option value=\"Public\" ".(($visibility == 'Public')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Public")."<option value=\"Hidden\" ".(($visibility == 'Hidden')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Hidden")."<option value=\"INTERNAL\" ".(($visibility == 'INTERNAL')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|INTERNAL")."</select></b></td>";
 
-		$htmlMain .= "<td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$rez_locales[$page_locale]."</td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit(".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+		$pages = array();
+		$count = 0;
 
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_append_log('Deleting Page ".$page_id." ...<br>'); setTimeout('rez_perform_delete(".$page_id.",\'".$page_locale."\',confirm(\'"._t("ResourcePages-Delete-Confirm|Are you sure you want to delete this page?")."\'));', 100);\" value=\""._t("ResourcePages-Button|Delete")."\"></td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_translate(".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
-
-		// if its the first and only item, no move up/down controls
-		if (($i == 1) && ($count == 1)) {
-			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\">-</td>";
-
-			// if its the first item and there are more, show down control
-		} elseif (($i == 1) && ($count > 1)) {
-			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_down(".$page_id.");\" value=\"⇣\"></td>";
-
-			// if its the last item, only show up control
-		} elseif ($i == $count) {
-			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_up(".$page_id.");\" value=\"⇡\"></td>";
-
-			// its a normal item, show up and down controls
-		} else {
-			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_up(".$page_id.");\" value=\"⇡\"> <input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_down(".$page_id.");\" value=\"⇣\"></td>";
+		// find out how many pages we have so we can later build our pages table
+		while($row = $result->FetchRow() ){
+			$pages[$count] = $row;
+			$count++;
 		}
-		$htmlMain .= "</tr>";
-		$i++;
-		$eo++;
-		$eo %= 2;
-	}
-	if ($count == 0) {
-		$htmlMain .= "<tr><td colspan=7 class=\"mainRowEven\" style=\"text-align: center;\">"._t("ResourcePages-Message|No Pages have been created.")."</td></tr>";
-	}
-	$htmlMain .= "</table>";
-	//
-	// END NORMAL PAGES
-	//
-	///////////////////////////////////////////////////////////////////////////////////////////////////////
+		$rez_locales = $global['rez_locales'];
+		// build pages Table
+		$i = 1;
+		$eo = 0;
+		while($i <= $count) {
+			$row = $pages[$i-1];
+			$page_id    = $row['rez_page_id'];
+			$page_locale= $row['rez_locale'];
+			$menu_title = $row['rez_menu_title'];
+			$menu_order = $row['rez_menu_order'];
+			$visibility = $row['rez_visibility'];
+			$timestamp  = $row['rez_timestamp'];
+			if ( $eo == 0 ) {
+				$evenOddClass = "mainRowEven";
+			} else {
+				$evenOddClass = "mainRowOdd";
+			}
+			$int = ($visibility == 'INTERNAL') ? "<b>INTERNAL</b> " : "";
+			$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$page_id."</td>"
+				."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit(".$page_id.",'".$page_locale."');\">".$int.$menu_title."</a></td>"
+				."<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><b><select name=\"visibility\" onchange=\"javascript: rez_perform_change_visibility(".$page_id.", this.value);\"><option value=\"Public\" ".(($visibility == 'Public')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Public")."<option value=\"Hidden\" ".(($visibility == 'Hidden')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Hidden")."<option value=\"INTERNAL\" ".(($visibility == 'INTERNAL')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|INTERNAL")."</select></b></td>";
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	// SYSTEM PAGES
-	//
-	$htmlMain .= "<br><h2>"._t("ResourcePages-Heading|System Pages")."</h2>"
-		."<table class=\"mainTable\"><tr><td style=\"padding-left: 8px; width: 50px; text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Page #")."</b></td>"
-		."<td style=\"padding-left: 8px;\" ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"._t("ResourcePages-Table-Header|Menu/Page Title")."</b></td>"
-		."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Edit")."</b></td></tr>";
+			$htmlMain .= "<td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$rez_locales[$page_locale]."</td>";
+			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit(".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
 
-	$q = "
-		select rez_page_id, rez_menu_title, rez_menu_order, rez_visibility, rez_timestamp
-		from rez_pages
-		where rez_page_id < 0
-		order by rez_page_id desc;
-	";
-	$result = $global['db']->Execute($q);
-	if($result === false) {
-		daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "rez system pages");
-	}
+			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_append_log('Deleting Page ".$page_id." ...<br>'); setTimeout('rez_perform_delete(".$page_id.",\'".$page_locale."\',confirm(\'"._t("ResourcePages-Delete-Confirm|Are you sure you want to delete this page?")."\'));', 100);\" value=\""._t("ResourcePages-Button|Delete")."\"></td>";
+			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_translate(".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
 
-	$pages = array();
-	$count = 0;
+			// if its the first and only item, no move up/down controls
+			if (($i == 1) && ($count == 1)) {
+				$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\">-</td>";
 
-	// find out how many pages we have so we can later build our pages table
-	while($row = $result->FetchRow() ){
-		$pages[$count] = $row;
-		$count++;
-	}
+				// if its the first item and there are more, show down control
+			} elseif (($i == 1) && ($count > 1)) {
+				$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_down(".$page_id.");\" value=\"⇣\"></td>";
 
-	// build system pages Table
-	$burl = "<img src=\"theme/".$conf['theme']."/img/"; // base URL for images, (it chooses the /www/theme/THEME_NAME/img/ folder)
-	$i = 1;
-	$eo = 0;
-	while($i <= $count) {
-		$row = $pages[$i-1];
-		$page_id    = $row['rez_page_id'];
-		$menu_title = $row['rez_menu_title'];
-		$menu_order = $row['rez_menu_order'];
-		$visibility = $row['rez_visibility'];
-		$timestamp  = $row['rez_timestamp'];
-		if ( $eo == 0 ) {
-			$evenOddClass = "mainRowEven";
-		} else {
-			$evenOddClass = "mainRowOdd";
+				// if its the last item, only show up control
+			} elseif ($i == $count) {
+				$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_up(".$page_id.");\" value=\"⇡\"></td>";
+
+				// its a normal item, show up and down controls
+			} else {
+				$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_up(".$page_id.");\" value=\"⇡\"> <input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_move_down(".$page_id.");\" value=\"⇣\"></td>";
+			}
+			$htmlMain .= "</tr>";
+			$i++;
+			$eo++;
+			$eo %= 2;
 		}
-		$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".abs($page_id)."</td><td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit(".$page_id.",'');\">".$menu_title."</a></td>";
+		if ($count == 0) {
+			$htmlMain .= "<tr><td colspan=7 class=\"mainRowEven\" style=\"text-align: center;\">"._t("ResourcePages-Message|No Pages have been created.")."</td></tr>";
+		}
+		$htmlMain .= "</table>";
+		//
+		// END NORMAL PAGES
+		//
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+		$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); rez_perform_edit(\'res\',\'\');" value="'._t("ResourcePages-Button|Create a new Page").'">&nbsp;&nbsp;&nbsp;&nbsp;';
+	}else{
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// SYSTEM PAGES
+		//
+		$htmlMain .= "<br><h2>"._t("ResourcePages-Heading|System Pages")."</h2>"
+			."<table class=\"mainTable\"><tr><td style=\"padding-left: 8px; width: 50px; text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Page #")."</b></td>"
+			."<td style=\"padding-left: 8px;\" ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"._t("ResourcePages-Table-Header|Menu/Page Title")."</b></td>"
+			."<td style=\"text-align: center;\" ><b>"._t("ResourcePages-Table-Header|Edit")."</b></td></tr>";
 
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit(".$page_id.",'');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+		$q = "
+			select rez_page_id, rez_menu_title, rez_menu_order, rez_visibility, rez_timestamp
+			from rez_pages
+			where rez_page_id < 0
+			order by rez_page_id desc;
+		";
+		$result = $global['db']->Execute($q);
+		if($result === false) {
+			daoErrorLog(__FILE__, __LINE__, __METHOD__, __CLASS__, __FUNCTION__, $global['db']->ErrorMsg(), "rez system pages");
+		}
 
-		$i++;
-		$eo++;
-		$eo %= 2;
+		$pages = array();
+		$count = 0;
+
+		// find out how many pages we have so we can later build our pages table
+		while($row = $result->FetchRow() ){
+			$pages[$count] = $row;
+			$count++;
+		}
+
+		// build system pages Table
+		$burl = "<img src=\"theme/".$conf['theme']."/img/"; // base URL for images, (it chooses the /www/theme/THEME_NAME/img/ folder)
+		$i = 1;
+		$eo = 0;
+		while($i <= $count) {
+			$row = $pages[$i-1];
+			$page_id    = $row['rez_page_id'];
+			$menu_title = $row['rez_menu_title'];
+			$menu_order = $row['rez_menu_order'];
+			$visibility = $row['rez_visibility'];
+			$timestamp  = $row['rez_timestamp'];
+			if ( $eo == 0 ) {
+				$evenOddClass = "mainRowEven";
+			} else {
+				$evenOddClass = "mainRowOdd";
+			}
+			$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".abs($page_id)."</td><td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit(".$page_id.",'');\">".$menu_title."</a></td>";
+
+			$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit(".$page_id.",'');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+
+			$i++;
+			$eo++;
+			$eo %= 2;
+		}
+		if ($count == 0) {
+			$htmlMain .= "<tr><td colspan=7 class=\"mainRowEven\" style=\"text-align: center;\">"._t("ResourcePages-Message|No Pages have been created.")."</td></tr>";
+		}
+		$htmlMain .= "</table>";
+		//
+		// END SYSTEM PAGES
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); rez_perform_edit(\'system\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;';
 	}
-	if ($count == 0) {
-		$htmlMain .= "<tr><td colspan=7 class=\"mainRowEven\" style=\"text-align: center;\">"._t("ResourcePages-Message|No Pages have been created.")."</td></tr>";
-	}
-	$htmlMain .= "</table>";
-	//
-	// END SYSTEM PAGES
-	//
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); rez_perform_edit(\'res\',\'\');" value="'._t("ResourcePages-Button|Create a new Page").'"><input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); rez_perform_edit(\'system\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;';
 	// <input class="controlButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
 
 	//---- internally, no ajax, just pass back data
@@ -247,7 +252,32 @@ function rez_show_pages($internal = FALSE) {
 	}
 }
 
+function rez_show_pages2($internal = FALSE)
+{
+	global $conf;
+	global $global;
+	$htmlLog = "";
+	$htmlMain = "";
 
+	
+	// <input class="controlButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
+
+	//---- internally, no ajax, just pass back data
+	if ( $internal ) {
+		return $htmlMain;
+	} else {
+		$global['xajax_res']->addAssign('rezControl','style.opacity','1.0');
+		$global['xajax_res']->addAssign('rezControl','innerHTML',$pageControlHtml);
+
+		$global['xajax_res']->addAssign('rezMain','style.opacity','1.0');
+		$global['xajax_res']->addAssign('rezMain','innerHTML',$htmlMain);
+
+		$htmlLog .= "Found ".$count." page(s).<br>";
+		$global['xajax_res']->addAppend('rezLog','innerHTML',$htmlLog);
+		$global['xajax_res']->addScript("setTimeout('e = document.getElementById(\'rezLog\'); e.scrollTop = e.scrollHeight+1000;', 500);");
+		return $global['xajax_res']->getXML();
+	}
+}
 
 // save a change in visibility for a certain page
 function rez_perform_change_visibility($page_id, $value) {

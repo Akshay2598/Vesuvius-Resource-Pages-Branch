@@ -16,6 +16,7 @@ shn_xajax_registerFunction('rez_append_log');
 shn_xajax_registerFunction('rez_prepend_log');
 shn_xajax_registerFunction('rez_show_message');
 shn_xajax_registerFunction('rez_show_pages');
+shn_xajax_registerFunction('rez_show_pages2');
 shn_xajax_registerFunction('rez_show_help');
 shn_xajax_registerFunction('rez_perform_edit');
 shn_xajax_registerFunction('rez_perform_delete');
@@ -30,7 +31,6 @@ shn_xajax_registerFunction('rez_perform_translate');
 
 /** setup admin GUI for modRez and then let xajax do all the work */
 function shn_rez_adm_default() {
-
 	shn_xajax_printJavascript();
 	?>
 		<div id="rezLog" class="logArea">Loading Pages...<br></div>
@@ -38,7 +38,7 @@ function shn_rez_adm_default() {
 		<div id="rezMain" class="mainArea">&nbsp;</div>
 		<script>
 		rez_show_message("Loading Pages...");
-	setTimeout("rez_show_pages();", 1500);
+		setTimeout("rez_show_pages(0,<? echo isset($_GET['rez2'])?1:0?>);", 1500);
 	window.rezPageSaved = true;
 
 	function checkSaved(id) {
@@ -47,14 +47,14 @@ function shn_rez_adm_default() {
 			if(answer) {
 				rez_append_log('Closing editor...<br>');
 				area2.removeInstance('pageContent');
-				setTimeout('rez_show_pages();', 500);
+				setTimeout('rez_show_pages(0,<? echo isset($_GET['rez2'])?1:0?>);', 500);
 				window.rezPageSaved = true;
 			}
 		} else {
 			rez_append_log('Closing editor...<br>');
 			area2.removeInstance('pageContent');
 			setTimeout(function(){rez_perform_delete(id,'',true);},200)
-			setTimeout('rez_show_pages();', 500);
+			setTimeout('rez_show_pages(0,<? echo isset($_GET['rez2'])?1:0?>);', 500);
 			window.rezPageSaved = true;
 		}
 	}

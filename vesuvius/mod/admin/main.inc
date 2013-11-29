@@ -37,6 +37,7 @@ function shn_admin_default() {
 	shn_tabmenu_open();
 	shn_tabmenu_item("version", _t("Admin-Menu|Version"),        "admin");
 	shn_tabmenu_item("rez",     _t("Admin-Menu|Resource Pages"), "admin");
+	shn_tabmenu_item("rez2",    _t("Admin-Menu|System Pages"),   "admin");
 	shn_tabmenu_item("adduser", _t("Admin-Menu|Add User"),       "admin");
 	shn_tabmenu_item("deluser", _t("Admin-Menu|Remove User"),    "admin");
 	shn_tabmenu_item("roles",   _t("Admin-Menu|User Roles"),     "admin");
@@ -47,7 +48,7 @@ function shn_admin_default() {
 	shn_tabmenu_close();
 
 
-	if(isset($_GET['rez'])) {
+	if(isset($_GET['rez']) || isset($_GET['rez2'])) {
 		$control = "shn_rez_adm_default";
 		require_once($global['approot']."mod/rez/admin.inc");
 
