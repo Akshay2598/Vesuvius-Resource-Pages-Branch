@@ -88,10 +88,8 @@ function rez_show_message($message = "no message specified?") {
 
 
 // reloads the mainArea div with information of what pages we have
-function rez_show_pages($internal = FALSE, $showtemplate) {
-	if ($showtemplate) {
-		return rez_show_templates();
-	}
+function rez_show_pages($internal = FALSE) {
+
 	global $conf;
 	global $global;
 	$htmlLog = "";
