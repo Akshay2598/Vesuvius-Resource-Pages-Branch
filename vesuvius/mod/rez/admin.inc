@@ -46,7 +46,7 @@ function shn_rez_adm_default() {
 		<script type="text/javascript" src="res/js/jquery-ui-datepicker.min.js"></script>
 		<script>
 		rez_show_message("Loading Pages...");
-	setTimeout("rez_show_pages();", 1500);
+	setTimeout("rez_show_pages(0,<? echo isset($_GET['template'])?1:0?>);", 1500);
 	window.rezPageSaved = true;
 
 	function checkSaved(type) {

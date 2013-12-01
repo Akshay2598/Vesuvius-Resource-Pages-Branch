@@ -88,7 +88,10 @@ function rez_show_message($message = "no message specified?") {
 
 
 // reloads the mainArea div with information of what pages we have
-function rez_show_pages($internal = FALSE) {
+function rez_show_pages($internal = FALSE, $showtemplate) {
+	if ($showtemplate) {
+		return rez_show_templates();
+	}
 	global $conf;
 	global $global;
 	$htmlLog = "";
@@ -256,7 +259,7 @@ function rez_show_pages($internal = FALSE) {
 
 
 
-	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); rez_perform_edit(\'newresource\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Resource Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); rez_perform_edit(\'newsystem\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Showing Templates...").'<br>\'); rez_show_templates();" value="'._t("ResourcePages-Button|Manage Templates").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
+	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); rez_perform_edit(\'newresource\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Resource Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); rez_perform_edit(\'newsystem\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
 
 	//---- internally, no ajax, just pass back data
 	if ( $internal ) {
@@ -1299,11 +1302,13 @@ function rez_perform_translate($type,$page_id, $locale) {
 	if ($type !== 'template'){
 		$pageControlHtml = '
 			<input class="styleTehButton" type="button" onclick="javascript:  window.rezPageSaved = true; if(nicEditors.editors.length>0){nicEditors.findEditor(\'pageContent\').saveContent();} rez_perform_save(\'translated\','.$page_id.', xajax.getFormValues(\'editPageForm\'));" value="'._t("ResourcePages-EditForm-Button|Save and Publish Changes").'"> 
-			<input class="styleTehButton" type="button" onclick="checkSaved(\'template\')" value="Close Editor">';}
+			<input class="styleTehButton" type="button" onclick="checkSaved(\'template\')" value="Close Editor">
+';}
 	else{
 		$pageControlHtml = '
 			<input class="styleTehButton" type="button" onclick="javascript:  window.rezPageSaved = true; if(nicEditors.editors.length>0){nicEditors.findEditor(\'pageContent\').saveContent();} rez_template_save(\'translated\','.$page_id.', xajax.getFormValues(\'editPageForm\'));" value="'._t("ResourcePages-EditForm-Button|Save and Publish Changes").'">
-			<input class="styleTehButton" type="button" onclick="checkSaved(\'template\')" value="Close Editor">';}
+			<input class="styleTehButton" type="button" onclick="checkSaved(\'template\')" value="Close Editor">
+';}
 	$pageControlHtml .= '
 		<input class="styleTehButton" type="button" onclick=\'insertAtCursor()\' value="Translate">
 		&nbsp; &nbsp; &nbsp; <span class="toggle">View editor as:

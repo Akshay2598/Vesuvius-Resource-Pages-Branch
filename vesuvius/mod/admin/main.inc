@@ -35,19 +35,20 @@ function shn_admin_default() {
 	$control = "";
 
 	shn_tabmenu_open();
-	shn_tabmenu_item("version", _t("Admin-Menu|Version"),        "admin");
-	shn_tabmenu_item("rez",     _t("Admin-Menu|Resource Pages"), "admin");
-	shn_tabmenu_item("adduser", _t("Admin-Menu|Add User"),       "admin");
-	shn_tabmenu_item("deluser", _t("Admin-Menu|Remove User"),    "admin");
-	shn_tabmenu_item("roles",   _t("Admin-Menu|User Roles"),     "admin");
-	shn_tabmenu_item("passwd",  _t("Admin-Menu|Password Reset"), "admin");
-	shn_tabmenu_item("status",  _t("Admin-Menu|User Status"),    'admin');
-	shn_tabmenu_item("mods",    _t("Admin-Menu|Module ACL"),     'admin');
-	shn_tabmenu_item("log",     _t("Admin-Menu|Event Log"),      'admin');
+	shn_tabmenu_item("version", _t("Admin-Menu|Version"),         'admin');
+	shn_tabmenu_item("rez",     _t("Admin-Menu|Resource Pages"),  'admin');
+	shn_tabmenu_item("template",_t("Admin-Menu|Manage Templates"),'admin');
+	shn_tabmenu_item("adduser", _t("Admin-Menu|Add User"),        'admin');
+	shn_tabmenu_item("deluser", _t("Admin-Menu|Remove User"),     'admin');
+	shn_tabmenu_item("roles",   _t("Admin-Menu|User Roles"),      'admin');
+	shn_tabmenu_item("passwd",  _t("Admin-Menu|Password Reset"),  'admin');
+	shn_tabmenu_item("status",  _t("Admin-Menu|User Status"),     'admin');
+	shn_tabmenu_item("mods",    _t("Admin-Menu|Module ACL"),      'admin');
+	shn_tabmenu_item("log",     _t("Admin-Menu|Event Log"),       'admin');
 	shn_tabmenu_close();
 
 
-	if(isset($_GET['rez'])) {
+	if(isset($_GET['rez']) || isset($_GET['template'])) {
 		$control = "shn_rez_adm_default";
 		require_once($global['approot']."mod/rez/admin.inc");
 
