@@ -138,6 +138,7 @@ function rez_show_pages($internal = FALSE) {
 		$pages[$count] = $row;
 		$count++;
 	}
+	$resourceCount = $count;
 	$rez_locales = $global['rez_locales'];
 	// build pages Table
 	$i = 1;
@@ -222,6 +223,7 @@ function rez_show_pages($internal = FALSE) {
 		$pages[$count] = $row;
 		$count++;
 	}
+	$systemPageCount = $count;
 
 	// build system pages Table
 	$burl = "<img src=\"theme/".$conf['theme']."/img/"; // base URL for images, (it chooses the /www/theme/THEME_NAME/img/ folder)
@@ -268,8 +270,10 @@ function rez_show_pages($internal = FALSE) {
 
 		$global['xajax_res']->addAssign('rezMain','style.opacity','1.0');
 		$global['xajax_res']->addAssign('rezMain','innerHTML',$htmlMain);
-		$count-=1;
-		$htmlLog .= "Found ".$count ." Resource page(s).<br>";
+
+		$htmlLog .= "Found ".$resourceCount." Resource page(s).<br>";
+		$htmlLog .= "Found ".$systemPageCount." System page(s).<br>";
+
 		$global['xajax_res']->addAppend('rezLog','innerHTML',$htmlLog);
 		$global['xajax_res']->addScript("setTimeout('e = document.getElementById(\'rezLog\'); e.scrollTop = e.scrollHeight+1000;', 500);");
 		return $global['xajax_res']->getXML();
