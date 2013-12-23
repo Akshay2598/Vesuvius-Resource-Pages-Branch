@@ -1304,7 +1304,7 @@ function rez_perform_translate($type,$page_id, $locale) {
 	if ($type !== 'template'){
 		$pageControlHtml = '
 			<input class="styleTehButton" type="button" onclick="javascript:  window.rezPageSaved = true; if(nicEditors.editors.length>0){nicEditors.findEditor(\'pageContent\').saveContent();} rez_perform_save(\'translated\','.$page_id.', xajax.getFormValues(\'editPageForm\'));" value="'._t("ResourcePages-EditForm-Button|Save and Publish Changes").'"> 
-			<input class="styleTehButton" type="button" onclick="checkSaved(\'template\')" value="Close Editor">
+			<input class="styleTehButton" type="button" onclick="checkSaved(\'page\')" value="Close Editor">
 ';}
 	else{
 		$pageControlHtml = '
