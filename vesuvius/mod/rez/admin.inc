@@ -53,6 +53,16 @@ function shn_rez_adm_default() {
 	<? }; ?>
 	window.rezPageSaved = true;
 
+	function openEditor(type, id, locale) {
+		rez_append_log('Opening editor...<br>');
+		rez_perform_edit(type, id, locale);
+	}
+
+	function openTranslator(type, id, locale) {
+		rez_append_log('Opening editor...<br>');
+		rez_perform_translate(type, id, locale);
+	}
+
 	function checkSaved(type) {
 		if(!window.rezPageSaved) {
 			var answer = confirm('Are you sure you want to close this document? It has not been saved.');

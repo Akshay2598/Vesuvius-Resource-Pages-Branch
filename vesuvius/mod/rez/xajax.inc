@@ -37,6 +37,8 @@ array_push($global['xajax_functions'],'rez_perform_move_up');
 array_push($global['xajax_functions'],'rez_perform_move_down');
 array_push($global['xajax_functions'],'rez_perform_change_visibility');
 array_push($global['xajax_functions'],'rez_perform_change_locale');
+array_push($global['xajax_functions'],'openEditor');
+array_push($global['xajax_functions'],'openTranslator');
 
 //Initialize locale array
 global $global;
@@ -158,14 +160,14 @@ function rez_show_pages($internal = FALSE) {
 		}
 		$int = ($visibility == 'INTERNAL') ? "<b>INTERNAL</b> " : "";
 		$htmlMain .= "<tr>"
-			."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit('resource',".$page_id.",'".$page_locale."');\">".$int.$menu_title."</a></td>"
+			."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"openEditor('resource',".$page_id.",'".$page_locale."');\">".$int.$menu_title."</a></td>"
 			."<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><b><select name=\"visibility\" onchange=\"javascript: rez_perform_change_visibility('page',".$page_id.", this.value);\"><option value=\"Public\" ".(($visibility == 'Public')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Public")."<option value=\"Hidden\" ".(($visibility == 'Hidden')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Hidden")."<option value=\"INTERNAL\" ".(($visibility == 'INTERNAL')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|INTERNAL")."</select></b></td>";
 
 		$htmlMain .= "<td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$rez_locales[$page_locale]."</td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit('resource',".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"openEditor('resource',".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
 
 		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_append_log('Deleting Page ".$page_id." ...<br>'); setTimeout('rez_perform_delete(\'page\',".$page_id.",\'".$page_locale."\',confirm(\'"._t("ResourcePages-Delete-Confirm|Are you sure you want to delete this page?")."\'));', 100);\" value=\""._t("ResourcePages-Button|Delete")."\"></td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_translate('page',".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
+		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"openTranslator('page',".$page_id.",'".$page_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
 
 		// if its the first and only item, no move up/down controls
 		if (($i == 1) && ($count == 1)) {
@@ -241,9 +243,9 @@ function rez_show_pages($internal = FALSE) {
 		} else {
 			$evenOddClass = "mainRowOdd";
 		}
-		$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".abs($page_id)."</td><td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit('system',".$page_id.",'');\">".$menu_title."</a></td>";
+		$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".abs($page_id)."</td><td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"openEditor('system',".$page_id.",'');\">".$menu_title."</a></td>";
 
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit('system',".$page_id.",'');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"openEditor('system',".$page_id.",'');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
 
 		$i++;
 		$eo++;
@@ -259,7 +261,7 @@ function rez_show_pages($internal = FALSE) {
 
 
 
-	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); rez_perform_edit(\'newresource\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Resource Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); rez_perform_edit(\'newsystem\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
+	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new page...").'<br>\'); openEditor(\'newresource\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Resource Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new System page...").'<br>\'); openEditor(\'newsystem\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new System Page").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
 
 	//---- internally, no ajax, just pass back data
 	if ( $internal ) {
@@ -395,15 +397,15 @@ function rez_show_templates() {
 		}
 		$int = ($visibility == 'INTERNAL') ? "<b>INTERNAL</b> " : "";
 		$htmlMain .= "<tr><td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$i."</td>"
-			."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"rez_perform_edit('template',".$template_id.",'".$template_locale."');\">".$int.$menu_title."</a></td>"
+			."<td style=\"padding-left: 8px;\" class=\"".$evenOddClass."\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#\" onclick=\"openEditor('template',".$template_id.",'".$template_locale."');\">".$int.$menu_title."</a></td>"
 			."<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><b><select name=\"visibility\" onchange=\"javascript: rez_perform_change_visibility('template',".$template_id.", this.value);\"><option value=\"Public\" ".(($visibility == 'Public')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Public")."<option value=\"Hidden\" ".(($visibility == 'Hidden')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|Hidden")."<option value=\"INTERNAL\" ".(($visibility == 'INTERNAL')?'SELECTED':'').">"._t("ResourcePages-Visibility-Select|INTERNAL")."</select></b></td>";
 
 		$htmlMain .= "<td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$category."</td>";
 		$htmlMain .= "<td style=\"padding-left: 8px; text-align: center;\" class=\"".$evenOddClass."\">".$rez_locales[$template_locale]."</td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_edit('template',".$template_id.",'".$template_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
+		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"openEditor('template',".$template_id.",'".$template_locale."');\" value=\""._t("ResourcePages-Button|Edit")."\"></td>";
 
 		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_append_log('Deleting Template ".$template_id." ...<br>'); setTimeout('rez_perform_delete(\'template\',".$template_id.",\'".$template_locale."\',confirm(\'"._t("ResourcePages-Delete-Confirm|Are you sure you want to delete this template?")."\'));', 100);\" value=\""._t("ResourcePages-Button|Delete")."\"></td>";
-		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"rez_perform_translate('template',".$template_id.",'".$template_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
+		$htmlMain .= "<td style=\"text-align: center;\" class=\"".$evenOddClass."\"><input class=\"styleTehButton\" type=\"button\" onclick=\"openTranslator('template',".$template_id.",'".$template_locale."');\" value=\""._t("ResourcePages-Button|Translate")."\"></td>";
 
 		$htmlMain .= "</tr>";
 		$i++;
@@ -415,7 +417,7 @@ function rez_show_templates() {
 	}
 	$htmlMain .= "</table>";
 	//
-	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new Template...").'<br>\'); rez_perform_edit(\'newtemplate\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Template").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
+	$pageControlHtml = '<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\''._t("ResourcePages-Message|Creating a new Template...").'<br>\'); openEditor(\'newtemplate\',\'\',\'\');" value="'._t("ResourcePages-Button|Create new Template").'">&nbsp;&nbsp;&nbsp;&nbsp;<input class="styleTehButton" type="button" onclick="javascript: rez_append_log(\'Showing Help...<br>\'); rez_show_help();" value="Help">';
 
 	//---- internally, no ajax, just pass back data
 	if ( $internal ) {
